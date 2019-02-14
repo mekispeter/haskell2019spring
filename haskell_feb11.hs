@@ -2,7 +2,7 @@
 Functional Programming for Logicians, 2019 February 11
 These are the functions defined in the first session. You can call them from
 the ghci prompt, after loading this file, e.g.
-> :l feb11.hs
+> :l haskell_feb11.hs
 [long echo]
 > greeting_p "Haskell"
 "Hello, Haskell!"
