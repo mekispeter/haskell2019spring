@@ -1,5 +1,5 @@
 {-
-A very simple representation of Conway's Game of life in Haskell. Populations
+A very simple implementation of Conway's Game of life in Haskell. Populations
 are embedded lists. Living cells are displayed as '#', dead cells by ' '.
 Load it in ghci, and call gol, eg:
 -- > gol (read_grid sample3) 10
