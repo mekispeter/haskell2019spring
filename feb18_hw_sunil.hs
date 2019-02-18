@@ -1,3 +1,10 @@
+{-
+This is pretty cool. I see you're already using recursion. Don't worry, 
+there'll be harder exercises for the next week. Your version of max3 is 
+brilliant, and makes maxn kinda trivial. Leap years are a little more complicated 
+than your function assumes: cf. https://en.wikipedia.org/wiki/Leap_year#Algorithm
+-}
+
 square :: Int -> Int
 square m = m*m
 
