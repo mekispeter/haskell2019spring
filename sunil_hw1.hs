@@ -54,5 +54,5 @@ binary n
 -- Own HW 3 Check if Leap year
 leap_year :: Int -> Bool
 leap_year y
-  | y `rem` 4 == 0 = True
+  | y `rem` 400 == 0 = True
   | otherwise = False
