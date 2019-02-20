@@ -51,8 +51,10 @@ binary n
   | n `rem` 2 == 0 = binary (n `div` 2) ++ "0"
   | otherwise = binary (n `div` 2) ++ "1"
 
--- Own HW 3 Check if Leap year
-leap_year :: Int -> Bool
-leap_year y
-  | y `rem` 400 == 0 = True
-  | otherwise = False
+  -- Own HW 3 Check if Leap year
+  -- Example: 2016, 2012, 2000, 2400 are leap years and 2100 and 2200 are not
+leap_year1 :: Int -> Bool
+leap_year1 y
+  | (y `rem` 4 /= 0)   = False
+  | (y `rem` 100 == 0) && (y `rem` 400 /= 0) = False
+  | otherwise = True
