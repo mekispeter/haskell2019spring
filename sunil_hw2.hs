@@ -1,3 +1,12 @@
+--Wow you solved all of them... Great job.:)
+-- A few remarks:
+-- - I think what you call twin primes are relative primes
+-- - your prime check is a beautiful example of functional code
+-- - your binary check results True for "01"
+-- - your Fibonacci is correct but considerably slow -- 
+--   is there a way to make it faster?
+-- MP
+
 -- HW 1 Last character
 last_char :: String -> Char
 last_char s
