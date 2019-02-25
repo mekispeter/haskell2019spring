@@ -1,3 +1,5 @@
+--Cool! :) It'd be nice to see functions of your own, as well. MP
+
 ld :: Int -> Int
 ld n = auxLd n 2
   where
