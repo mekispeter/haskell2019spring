@@ -60,3 +60,6 @@ subString sBig sSmall
   | beginsWith sBig sSmall  = True
   | sBig == ""              = False
   | otherwise               = subString (tail sBig) sSmall
+
+-- A last function will find and erase the "()" patterns in the original. We
+-- will start the next session with this.
