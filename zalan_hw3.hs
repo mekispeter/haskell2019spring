@@ -105,20 +105,3 @@ substring str = aux_substring str 0
      | num < length str = [[head str] ++ (take num (tail str))] ++ aux_substring str (num + 1)
      | otherwise = substring (tail str)
 
-
-roundOff :: Int -> Int -> Int
-roundOff num measure
- | mod num measure <=  div measure 2 = num - mod num measure
- | otherwise = num - mod num measure + measure
-
-coin = [200, 100, 50, 20, 10, 5]
-
-{-pay :: Int -> [Int]
-pay num = payAux (roundOff num 5) coin
-  where
-    payAux :: Int -> [Int] -> [Int]
-    payAux m lst
-      | m == 0 = []
-      | rem m (head coin) == 0 = 1 : (payAux (m - (head coin)) coin)
-      | otherwise = payAux m (tail coin)
--}
