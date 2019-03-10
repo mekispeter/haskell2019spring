@@ -54,3 +54,7 @@ tree2 = Node (Leaf "John") (Node (Leaf "love") (Leaf "Mary"))
 
 tree3 :: MyTree Integer
 tree3 = Node (Leaf 1) (Node (Leaf 2) (Leaf 3))
+
+boolTree :: Integer -> MyTree Bool
+boolTree 1 = Node True False
+booltree n = Node prev prev where prev = boolTree (n-1) 
