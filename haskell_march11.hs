@@ -14,3 +14,17 @@ fiblist n = (head oldlist
             + head (tail oldlist))
             : oldlist where
               oldlist = fiblist (n-1)
+
+fibfromlist :: Integer -> Integer
+fibfromlist n = head (fiblist n)
+
+fiblist' :: Integer -> [Integer]
+fiblist' 0 = [0]
+fiblist' 1 = [1,0]
+fiblist' n = (head oldlist
+            + head (tail oldlist))
+            : take 2 oldlist where
+              oldlist = fiblist' (n-1)
+
+fibfromlist' :: Integer -> Integer
+fibfromlist' n = head (fiblist' n)
