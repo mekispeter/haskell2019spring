@@ -1,3 +1,7 @@
+{-
+  - Very nice ideas! :) It's surprising how fast Sum 1/2^n converges to 2.
+-}
+
 -- convergent seriesA - performs 1+1/2^n n
 convergentSeriesA:: Integer -> Double
 convergentSeriesA 0 = 1

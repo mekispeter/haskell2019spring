@@ -1,3 +1,7 @@
+{-
+  Péter: Cool solutions!
+-}
+
 last_char :: String -> Char
 last_char s
   | tail s == "" = head s
@@ -9,7 +13,19 @@ string_length s
   | s == ""   = 0
   | otherwise = 1 + string_length (tail s)
 
-
+{-
+  Péter: Why don't you count backwards? Somewhat simpler versions:
+  drop'' :: String -> Integer -> String
+  drop'' s n
+    | n == 0    = s
+    | s == ""   = ""
+    | otherwise = drop'' (tail s) (n-1)
+  take'' :: String -> Integer -> String
+  take'' s n
+    | n == 0    = ""
+    | s == ""   = ""
+    | otherwise = head s : take'' (tail s) (n-1)
+-}
 -- HW 1
 drop' :: String -> Integer -> String
 drop' s n = dropAux s n 0
@@ -36,21 +52,31 @@ takeAux s n i
 div' :: Integer -> Integer -> Integer
 div' m n = divAux m n 0
 
-
+{-
+  Péter: Beautiful! :) Case 2 is unnecessary thugh.
+-}
 divAux :: Integer -> Integer -> Integer -> Integer
 divAux m n q
   | m < n     = 0
   | m == n    = 1
   | otherwise = 1 + divAux (m-n) n (q+1)
 
-
+{-
+  Péter: Nooo! Please take a recursive approaach:
+  middleChar' :: String -> Char
+  middleChar' ""      = '!'
+  middleChar' (c:"")  = c
+  middleChar' s       = middleChar (init (tail s))
+-}
 -- HW 4
 middleChar :: String -> Char
 middleChar s
   | string_length s `rem` 2 == 0 = '!'
   | otherwise = last_char (take' s (((string_length s) `div` 2) + 1))
 
-
+{-
+  Péter: Nice!
+-}
 -- HW 5
 nextTo :: String -> Char -> Char
 nextTo s c
@@ -58,7 +84,9 @@ nextTo s c
   | head s == c = head (tail s)
   | otherwise   = nextTo (tail s) c
 
-
+{-
+  Péter: Nice!
+-}
 -- HW 6
 slice :: String -> [String]
 slice s
@@ -89,7 +117,9 @@ reducestring s
   | part (tail s) (head s) = reducestring (tail s)
   | otherwise              = head s : reducestring (tail s)
 
-
+{-
+  Péter: Well done!
+-}
 --HW 10
 subStrings :: String -> [String]
 subStrings s = subStringsAux s 0
