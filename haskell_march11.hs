@@ -61,3 +61,11 @@ isPal (c:[])          = True
 isPal s
   | head s == last s  = isPal (init (tail s))
   | otherwise         = False
+
+
+quickSort :: [Integer] -> [Integer]
+quickSort []    = []
+quickSort (n:s) = quickSort low ++ [n]
+                  ++ quickSort high where
+                    low  = filter (<n) s
+                    high = filter (n<=) s
