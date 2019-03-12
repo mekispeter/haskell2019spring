@@ -100,7 +100,7 @@ flipArg :: Relation a -> Relation a
 (flipArg r) x y = r y x
 
 {-
-  Let's reconsider old examples.
+  Let's reconsider an old example.
 -}
 -- Palindrom checking for strings
 isPal :: Property String
