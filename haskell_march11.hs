@@ -39,7 +39,7 @@ fibFromList n = head (fibList n) where
   members. So why would we keep the rest?
 -}
 fibFromLSmart :: Integer -> Integer
-fibFromLSmart n = head (fibList' n) where
+fibFromLSmart n = head (fibListS n) where
   fibListS :: Integer -> [Integer]
   fibListS 0 = [0]
   fibListS 1 = [1,0]
@@ -103,18 +103,18 @@ flipArg :: Relation a -> Relation a
   Let's reconsider an old example.
 -}
 -- Palindrom checking for strings
-isPal :: Property String
-isPal ""              = True
-isPal (c:"")          = True
-isPal s
-  | head s == last s  = isPal (init (tail s))
+isPalS :: Property String
+isPalS ""              = True
+isPalS (c:"")          = True
+isPalS s
+  | head s == last s  = isPalS (init (tail s))
   | otherwise         = False
 --Palindrom checking for lists of numbers
-isPal :: Property Integer
-isPal []              = True
-isPal (c:[])          = True
-isPal s
-  | head s == last s  = isPal (init (tail s))
+isPalI :: Property [Integer]
+isPalI []              = True
+isPalI (c:[])          = True
+isPalI s
+  | head s == last s  = isPalI (init (tail s))
   | otherwise         = False
 {-
   The general version raises an error unless we restrict the type variable a
