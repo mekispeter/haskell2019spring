@@ -48,7 +48,7 @@ fibFromLSmart n = head (fibList' n) where
 
 {-
   A variation of the previous one: we don't need a list at all. We can pass
-  the extra number as another argument.
+  the extra number as another argument. n is now counting backwards.
 -}
 fibonacciSmart :: Integer -> Integer
 fibonacciSmart n = fibAux n 0 1 where
