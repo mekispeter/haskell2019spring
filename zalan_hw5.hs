@@ -1,4 +1,9 @@
 {-
+  Péter: Very good job! Similar tasks will be much easier with parsing strings
+  into trees though.
+-}
+
+{-
 # In modal logic modal depth (MD) of a formula is defined as:
 MD(p) = 0 (∀p p is atomic formula)
 MD(¬φ) = MD(φ)

@@ -1,3 +1,7 @@
+{-
+  Péter: Good job! See the comments below.
+-}
+
 f1 :: (Eq a) => [a] -> Bool
 f1 a = minimum (zipWith (==) a (reverse a))
 {-
@@ -39,12 +43,19 @@ whether e is a relative prime with c
 4. so, function b checks whether the number is prime or not (though it includes 1)
 5. (filter b [1..]) creates a list of primes and !! a returns the prime number at
    index a
+
+   Péter: Note that filtering is delayed until it becomes absolutely necessary
+   when the ath element is fetched, and even then filtering ends at this
+   element.
 -}
 
+{-
+ Péter: Brilliant recursions, but not very Haskellish, because they work with
+ indices. See my versions below.
+-}
 
 reflexive :: [(Int,Int)] -> Bool
 reflexive l = reflexiveAux l 0
-
 
 reflexiveAux :: [(Int,Int)] -> Int -> Bool
 reflexiveAux l n
@@ -57,17 +68,14 @@ reflexiveAux l n
 symmetric :: [(Int,Int)] -> Bool
 symmetric l = symmetricAux l 0
 
-
 symmetricAux :: [(Int,Int)] -> Int -> Bool
 symmetricAux l n
   | n == length l                         = True
   | any (== (snd(l !! n), fst(l !! n))) l = symmetricAux l (n+1)
   | otherwise                             = False
 
-
 transitive :: [(Int,Int)] -> Bool
 transitive l = transitiveAux l 0 1
-
 
 transitiveAux :: [(Int,Int)] -> Int -> Int -> Bool
 transitiveAux l m n
@@ -77,8 +85,34 @@ transitiveAux l m n
   | snd(l !! m) /= fst(l !! n) = transitiveAux l (m) (n+1)
   | otherwise                            = False
 
-
 equivalence :: [(Int,Int)] -> Bool
 equivalence l
   | reflexive l && symmetric l && transitive l = True
   | otherwise                                  = False
+-- Péter: The guards are redundant here. You can go just like:
+
+-- Péter: A version without indices:
+
+reflexive' :: [(Int,Int)] -> Bool
+reflexive' l = all (`elem` l) [(x,x) | x <-(dom l ++ rng l)] where
+  dom :: [(Int,Int)] -> [Int]
+  dom l = [fst x | x <- l]
+  rng :: [(Int,Int)] -> [Int]
+  rng l = [snd x | x <- l]
+
+symmetric' :: [(Int,Int)] -> Bool
+symmetric' l = all (`elem` l) [(n,m) | (m,n) <- l]
+
+-- this one is much slower than yours
+transitive' :: [(Int,Int)] -> Bool
+transitive' l = all (`elem` l)
+                [(n,m) | n <- (field l), m <- (field l), connected n m l] where
+  field :: [(Int,Int)] -> [Int]
+  field l = [fst x | x <- l] ++ [snd x | x <- l]
+  connected :: Int -> Int -> [(Int,Int)] -> Bool
+  connected n m l = any (connects n m l) (field l)
+  connects :: Int -> Int -> [(Int,Int)] -> Int -> Bool
+  connects n m l k = (n,k) `elem` l && (k,m) `elem` l
+
+equivalence' :: [(Int,Int)] -> Bool
+equivalence' l = reflexive l && symmetric l && transitive l

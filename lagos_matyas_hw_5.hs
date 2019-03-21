@@ -1,3 +1,5 @@
+-- Péter: Nice! See comment on f5.
+
 f1 :: (Eq a) => [a] -> Bool
 f1 a = minimum (zipWith (==) a (reverse a))
 {-
@@ -56,6 +58,8 @@ f5 a = b !! a where b = 1:[c * (b !! (c-1)) | c <- [1..]]
   products of each natural number "c" and the "c-1"-st member of "b". This
   doesn't result in infinite computation because the potentially infinite list
   is always indexed at a finite position.
+
+  Péter: So, what does the function return?
 -}
 
 f6 :: Int -> Integer

@@ -59,23 +59,26 @@ primesLeq m = [n | n <- [2..m], properDivisors n == []] where
 -- HW 12
 slice :: String -> [String]
 slice s = [[t] | t <- s, True]
+-- Péter: The condition is redundant, [[t] | t <- s] is syntactically correct.
 
 
 isVowel :: Char -> Bool
 isVowel x
   | x == 'a' || x == 'e' || x == 'i' || x == 'o' || x == 'u' = True
   | otherwise = False
-
+-- Péter: 1. The guards are redundant. 2. How about x `elem` "aeiouAEIOU"? See:
+isVowel' :: Char -> Bool
+isVowel' = (`elem` "aeiouAEIOU")
 
 -- HW 13
 separate :: String -> (String, String)
 separate s = ([x | x <- s, isVowel x], [y | y <- s, isVowel y == False && y /= ' '])
-
+-- Péter: Maybe not(isVowel y) or (not . isVowel) y is easier to read.
 
 count :: Char -> String -> Int
 count m l = length (filter (== m) l)
 
-
+-- Péter: Very nice combo of recursion and filtering.
 -- HW 14
 reduceString :: String -> String
 reduceString s

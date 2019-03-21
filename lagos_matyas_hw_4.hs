@@ -1,3 +1,5 @@
+-- Péter: Very nice job. See the comments on your own functions.
+
 -- Sample (creates a function from a list of pairs)
 fnFromPairs :: [(Integer,Integer)] -> (Integer -> Integer)
 fnFromPairs [] z         = undefined
@@ -39,6 +41,8 @@ zipHw l []           = []
 zipHw [] l           = []
 zipHw (s:sl) (i:il)  = (s,i) : zipHw sl il
 
+-- Péter: Nice idea, but slightly complicated. (Detailed comments and simpler
+-- version below.)
 -- Checks if a set of integers is a subset of another set of integers
 subset :: [Integer] -> [Integer] -> Bool
 subset [] y = True
@@ -47,7 +51,14 @@ subset x y  = if all (cont y) x then True else False
 -- Auxiliary for subset (I couldn't figure out how to use flip for elem)
 cont :: [Integer] -> Integer -> Bool
 cont x y  = elem y x
+-- Péter: 1. You can use the infix version: (`elem` y),
+-- eg. (`elem` [1,2,3]) 1 == True
+-- 2. The first two clauses are redundant.
+-- 3. The if-then is redundant.
+subset' :: [Integer] -> [Integer] -> Bool
+subset' x y = all (`elem` y) x
 
+-- Péter: This is beautiful. See my version below.
 -- Composes set-theoretic relations
 compose :: [(Integer,Integer)] -> [(Integer,Integer)] -> [(Integer,Integer)]
 compose f []  = []
@@ -63,3 +74,18 @@ compPrep f g = [((a,b),(c,d)) | (a,b) <- f, (c,d) <- g, match (a,b) (c,d)]
 -- Composes two ordered pairs
 compSmall :: ((Integer,Integer),(Integer,Integer)) -> (Integer,Integer)
 compSmall ((a,b),(c,d))  = (a,d)
+
+-- Péter: my version:
+compose' :: [(Integer,Integer)] -> [(Integer,Integer)] -> [(Integer,Integer)]
+compose' f g = [(x,z) | x <- dom f, z <- rng g, connected x z f g] where
+  dom :: [(Integer,Integer)] -> [Integer]
+  dom f = [x | (x,y) <- f]
+  rng :: [(Integer,Integer)] -> [Integer]
+  rng f = [y | (x,y) <- f]
+  connected :: Integer -> Integer -> [(Integer,Integer)] -> [(Integer,Integer)]
+              -> Bool
+  connected x z f g = any (connects x z f g) (rng f ++ dom g)
+  connects :: Integer -> Integer
+              -> [(Integer,Integer)] -> [(Integer,Integer)]
+              -> Integer -> Bool
+  connects x z f g y = (x,y) `elem` f && (y,z) `elem` g
