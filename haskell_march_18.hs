@@ -42,12 +42,11 @@ type HunRelation a = a -> a-> HunBool
   HunMaybe is a duplicate of the Maybe type. This type is used to handle
   partial functions. The case where is no value is handled with the 'Nothing'
   value ('Semmi' in our version); and the cases where there is a value x is
-  handled with the 'Just x' case ('Csak x' in our version.)
-  Maybe is a simple but extremely useful type. It is at the heart of a lot of
-  Haskell tricks.
+  handled with the 'Just x' case ('Csak x' in our version.) Maybe is a simple
+  but extremely useful type. It is at the heart of a lot of Haskell tricks.
 -}
 data HunMaybe a = Semmi | Csak a
--- Nothing | Just a
+--              Nothing | Just a
 
 -- Again, we could derive Show, but it's funnier to manually define it. Note
 -- that the wsowability of 'Just a' is inherited from the showability of 'a'.
@@ -118,5 +117,5 @@ treeLength (Node x t1 t2) = 1 + treeLength t1 + treeLength t2
     class. (Eg. mapping (*2) will double the labels at the nodes and leaves of
     a Tree Integer structure like numberTree above.)
 
-  In the next session we will discuss these types in detail.
+  In the next session we will discuss these classes in detail.
 -}
