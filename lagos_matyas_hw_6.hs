@@ -4,11 +4,19 @@ myElem z s  = foldr (isit z) False s where
   isit :: (Eq a) => a -> a -> Bool -> Bool
   isit z x y  = (x == z || y)
 
+-- Péter: Pattern matching is not necessary, since foldr works on an empty
+-- list, too. (Note that you don't use m.)
 myReverse :: [a] -> [a]
 myReverse []     = []
 myReverse (m:l)  = foldr (switch) [] (m:l) where
   switch :: a -> [a] -> [a]
   switch c l  = l ++ (c:[])
+
+-- A somewhat simpler version:
+myReverse' :: [a] -> [a]
+myReverse' l  = foldr (switch) [] l where
+  switch :: a -> [a] -> [a]
+  switch c l  = l ++ [c]
 
 myLength :: [a] -> Int
 myLength []     = 0
@@ -20,14 +28,21 @@ mySum :: (Num a) => [a] -> a
 mySum []     = 0
 mySum (m:l)  = foldr (+) 0 (m:l)
 
-
 -- Explicit instance declarations for HunBool
 data HunBool = Hamis | Igaz deriving (Read)
 
+-- Non-exhaustive patterns. You need to add the False case. Uncomment the
+-- commented line to avoid an error message for calls like
+-- Main> Hamis < Hamis
 instance Ord HunBool where
   (<) Hamis Igaz  = True
+  -- _ < _ = False
   (<=) x y        = if x == y || x < y then True else False
+-- For a minimal complete definition, <= is enough, and < will be generated:
+-- Igaz <= Hamis = False
+-- _ <= _        = True
 
+-- succ (fromEnum x) = fromEnum (succ x) is expected.
 instance Enum HunBool where
   succ Igaz       = Hamis
   succ Hamis      = Igaz
