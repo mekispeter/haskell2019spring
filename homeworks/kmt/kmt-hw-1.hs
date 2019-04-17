@@ -45,6 +45,13 @@ not' p
   | p          = False
   | otherwise  = True
 
+import Test.QuickCheck
+prop_not p = not p == not' p
+{-
+λ> quickCheck (prop_not)
++++ OK, passed 100 tests.
+-}
+
 {-
 
 TODO: write a quickcheck test to check not == not'
@@ -63,6 +70,7 @@ age' :: Int -> (Bool -> Int)
 age' date hadBday
   | hadBday    = age date
   | otherwise  = age (date - 1)
+
 
 {-
 λ> age' 2011 True
@@ -89,8 +97,8 @@ True
 
 matImpl' :: Bool -> (Bool -> Bool)
 matImpl' p q
-  | and' p (not' q) == True  = False
-  | otherwise                = True
+  | and' p (not' q)  = False
+  | otherwise        = True
   where and' p q
           | not' p     = False
           | not' q     = False
