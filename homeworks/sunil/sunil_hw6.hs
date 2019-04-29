@@ -8,7 +8,7 @@ myLength :: [a] -> Int
 myLength s = foldr count 0 s where count x y = 1 + y
 
 
--- HW 3
+-- HW 3:
 mySum :: (Num a) => [a] -> a
 mySum s  = foldr (+) 0 s
 
@@ -26,6 +26,11 @@ myMaximum s = foldr max (head s) s where max x y = if x > y then x else y
 -- HW 6
 squareSum :: (Num a) => [a] -> a
 squareSum s = foldr ss 0 s where ss x y = x^2 + y
+
+
+-- HW 7
+factorial :: (Num a, Enum a) => a -> a
+factorial n = foldr f 1 [1..n] where f x y = x*y
 
 
 data HunBool = Hamis | Igaz deriving (Eq, Show)
@@ -53,14 +58,19 @@ instance Bounded HunBool where
   maxBound = Igaz
 
 
-data Tree a = Leaf a | Node a (Tree a) (Tree a) deriving Show
-
+data Tree a = Leaf a | Node a (Tree a) (Tree a)
 
 montagueTree :: Tree String
 montagueTree =  Node "S4"
                 (Leaf "John")
                 (Node "S5" (Leaf "love") (Leaf "Mary"))
 
+montagueTree2 :: Tree String
+montagueTree2 =  Node "S4"
+                (Leaf "John")
+                  (Node "S5"
+                  (Leaf "love")
+                    (Node "S6" (Leaf "Sunil") (Leaf "Kumar")))
 
 -- HW 13
 treeDepth :: Tree a -> Integer
@@ -82,10 +92,31 @@ flipTree (Leaf t)       =  (Leaf t)
 flipTree (Node t t1 t2) = (Node t (flipTree t2) (flipTree t1))
 
 
+-- HW 16
+branches :: Tree a -> [[a]]
+branches (Leaf t) = [[t]]
+branches (Node t t1 t2) = map (t :) (branches t1) ++ map (t :) (branches t2)
+
+
+--HW 17
+instance (Show a) => Show (Tree a) where
+  show a = showDepth 0 a
+
+
+showDepth :: (Show a) => Int -> Tree a -> String
+showDepth d (Leaf t) = "\n" ++ space d ++ show t
+showDepth d (Node t t1 t2) = ("\n" ++ space d ++ show t) ++ (showDepth (d+1) t1) ++ (showDepth (d+1) t2)
+
+space :: Int -> String
+space 0 = ""
+space d = "-" ++ space (d-1)
+
+
+
 -- HW 19
-data Tree1 a = Empty | Node1 a (Tree1 a) (Tree1 a) deriving Show
+data Tree1 a = Empty1 | Node1 a (Tree1 a) (Tree1 a) deriving Show
 
 montagueTree1 :: Tree1 String
 montagueTree1 =  Node1 "S4"
-                (Node1 "John" Empty Empty)
-                (Node1 "S5" (Node1 "love" Empty Empty) (Node1 "Mary" Empty Empty))
+                (Node1 "John" Empty1 Empty1)
+                (Node1 "S5" (Node1 "love" Empty1 Empty1) (Node1 "Mary" Empty1 Empty1))
