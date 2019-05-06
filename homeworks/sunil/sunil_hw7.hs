@@ -140,4 +140,3 @@ setIntersection (Set s1) (Set s2) = Set ([i| i <- s1, i <- s2, (elem i s1) && (e
 instance Functor Set where
     fmap f (Set []) = Set []
     fmap f (Set (x:xs)) = Set (f x : (fmap f xs))
-      
