@@ -23,6 +23,7 @@
 
 import qualified Data.Vector as V
 import Data.Vector ((!))
+import Codec.Picture
 
 {-
   Main loop with all the IO actions
@@ -37,21 +38,45 @@ main = do
   putStrLn "Generations:"
   genString         <- getLine
   let generations   = read genString :: Int
-  updateLoop pattern generations generations patternName
+  putStrLn "Display mode (1: fancy, 2: simple, 3: gif):"
+  displayModeString <- getLine
+  let displayMode   = read displayModeString :: Int
+  if displayMode < 3
+    then updateLoop pattern generations generations patternName displayMode
+    else do
+      writeToGif patternName $ updateToList pattern generations
+      putStrLn $ "Animation exported to " ++ patternName ++ ".gif."
 
-updateLoop :: Grid -> Int -> Int -> String -> IO ()
-updateLoop pattern 0 m patternName =
-  displayPattern pattern m patternName
-updateLoop pattern n m patternName = do
-  displayPattern pattern (m - n) patternName
+updateLoop :: Grid -> Int -> Int -> String -> Int -> IO ()
+updateLoop pattern 0 m patternName displayMode =
+  displayPattern pattern m patternName displayMode
+updateLoop pattern n m patternName displayMode = do
+  displayPattern pattern (m - n) patternName displayMode
   _ <- getLine
-  updateLoop (updatePattern pattern) (n-1) m patternName
+  updateLoop (updatePattern pattern) (n-1) m patternName displayMode
 
-displayPattern :: Grid -> Int -> String -> IO ()
-displayPattern pattern gen patternName = do
+displayPattern :: Grid -> Int -> String -> Int -> IO ()
+displayPattern pattern gen patternName displayMode = do
   putStrLn $ "Pattern " ++ patternName ++ ", generation " ++ show gen
-  --putStrLn $ showPattern pattern
-  putStrLn $ fancyShowPattern pattern
+  if displayMode == 1
+    then putStrLn $ fancyShowPattern pattern
+    else putStrLn $ showPattern pattern
+
+writeToGif :: String -> [Grid] -> IO()
+writeToGif name gridList = getright $
+                  writeGifAnimation (name ++ ".gif") 25 LoopingNever $
+                  [generateImage (renderPixel grid) sizeX sizeY |
+                  grid <- gridList]
+                  where
+                    getright (Right x)  = x
+                    zoom = 8
+                    sizeX               = zoom * (gridSizeX $ head gridList)
+                    sizeY               = zoom * (gridSizeY $ head gridList)
+                    renderPixel grid x y
+                      | getCell grid (x `div` zoom) (y `div` zoom) == Alive
+                                        = PixelRGB8 196 30 61
+                      | otherwise       = PixelRGB8 245 245 245
+
 
 {-
   A cell has two states: dead or alive. A grid is a two-cimensional
@@ -108,7 +133,7 @@ readCell '.'        = Dead
 readCell _          = Alive
 
 patternFromList :: [[CellState]] -> Grid
-patternFromList xss = V.fromList (map V.fromList $ xss)
+patternFromList xss = V.fromList $ map V.fromList xss
 
 {-
 Updating a grid follows the neighborhood concept and update rool chosen by
@@ -153,6 +178,12 @@ updateCell pattern x y
      isWell         = self == Alive && (othersAlive == 2 || othersAlive == 3)
      self           = getCell pattern x y
      othersAlive    = aliveNeighbors pattern x y
+
+updateToList :: Grid -> Int -> [Grid]
+updateToList pattern 0            = []
+updateToList pattern generations  = pattern :
+                                    updateToList (updatePattern pattern)
+                                    (generations - 1)
 
 {-
   A fancier way of displaying the grids. There's a chance some of the
@@ -236,3 +267,5 @@ fSpattern1      = "\n\9487\9473\9473\9473\9491\n\9475 \9622 \9475\
                   \\n\9495\9473\9473\9473\9499"
 patternString2  = ".....\n.###.\n.....\n.....\n.###.\n....."
 pattern2        = readPattern patternString2
+
+{- writing to Gif -}
