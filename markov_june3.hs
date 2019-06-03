@@ -12,12 +12,15 @@ applyAux ::  Rule ->
 applyAux  (Rule left ruleType right)
           passed matching toDo
   | left == ""
-    = Just $ passed ++ toDo
+    = Just $ passed ++ right ++ toDo
   | toDo == ""
     = Nothing
   | head left == head toDo
     = applyAux (Rule (tail left) ruleType right)
       passed (matching ++ [head toDo]) (tail toDo)
+  | matching == ""
+    = applyAux (Rule (left) ruleType right)
+      (passed ++ [head toDo]) "" (tail toDo)
   | otherwise
-    = applyAux (Rule (tail left) ruleType right)
-      (passed ++ [head toDo]) matching (tail toDo)
+    = applyAux (Rule (matching ++ left) ruleType right)
+      (passed ++ matching) matching toDo
