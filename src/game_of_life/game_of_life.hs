@@ -12,17 +12,14 @@
   of 'displayPattern'.
 
   The program consists of the following parts:
-  - Main IO loop
-  - Definition of a grid
-  - A simple show method for grids
-  - Grid parsing
-  - Grid updating
-  - A fancy show method for grids
+  - Main IO stuff
+  - Definitions of cell and pattern
+  - Pattern parsing
+  - Pattern updating
   - A test function
 -}
 
-import qualified Data.Vector as V
-import Data.Vector ((!))
+import Grid
 import Codec.Picture
 
 {-
@@ -33,7 +30,7 @@ main :: IO ()
 main = do
   putStrLn "Pattern:"
   patternName       <- getLine
-  patternString     <- readFile $ patternName ++ ".grid"
+  patternString     <- readFile $ "gol_patterns/" ++ patternName ++ ".grid"
   let pattern       = readPattern patternString
   putStrLn "Generations:"
   genString         <- getLine
@@ -47,7 +44,8 @@ main = do
       writeToGif patternName $ updateToList pattern generations
       putStrLn $ "Animation exported to " ++ patternName ++ ".gif."
 
-updateLoop :: Grid -> Int -> Int -> String -> Int -> IO ()
+updateLoop :: Pattern -> Int -> Int -> String -> Int ->
+              IO ()
 updateLoop pattern 0 m patternName displayMode =
   displayPattern pattern m patternName displayMode
 updateLoop pattern n m patternName displayMode = do
@@ -55,28 +53,19 @@ updateLoop pattern n m patternName displayMode = do
   _ <- getLine
   updateLoop (updatePattern pattern) (n-1) m patternName displayMode
 
-displayPattern :: Grid -> Int -> String -> Int -> IO ()
+displayPattern :: Pattern -> Int -> String -> Int -> IO ()
 displayPattern pattern gen patternName displayMode = do
   putStrLn $ "Pattern " ++ patternName ++ ", generation " ++ show gen
   if displayMode == 1
-    then putStrLn $ fancyShowPattern pattern
-    else putStrLn $ showPattern pattern
+    then putStrLn $ showGridFancy pattern (== Alive)
+    else putStrLn $ showGridSimple pattern ""
 
-writeToGif :: String -> [Grid] -> IO()
-writeToGif name gridList = getright $
-                  writeGifAnimation (name ++ ".gif") 25 LoopingNever $
-                  [generateImage (renderPixel grid) sizeX sizeY |
-                  grid <- gridList]
-                  where
-                    getright (Right x)  = x
-                    zoom = 8
-                    sizeX               = zoom * (gridSizeX $ head gridList)
-                    sizeY               = zoom * (gridSizeY $ head gridList)
-                    renderPixel grid x y
-                      | getCell grid (x `div` zoom) (y `div` zoom) == Alive
-                                        = PixelRGB8 196 30 61
-                      | otherwise       = PixelRGB8 245 245 245
-
+writeToGif :: String -> [Pattern] -> IO()
+writeToGif name gridList = writeGridsToGif gridList ("gol_images/" ++ name)
+  renderPixel 8
+  where
+    renderPixel Alive = PixelRGB8 196 30 61
+    renderPixel Dead  = PixelRGB8 245 245 245
 
 {-
   A cell has two states: dead or alive. A grid is a two-cimensional
@@ -84,37 +73,16 @@ writeToGif name gridList = getright $
 -}
 
 data CellState      = Dead | Alive deriving (Eq, Ord, Enum)
-type Grid           = V.Vector (V.Vector CellState)
-
-gridSizeY :: Grid -> Int
-gridSizeY pattern   = V.length pattern
-gridSizeX :: Grid -> Int
-gridSizeX pattern
-  | gridSizeY pattern == 0  = 0
-  | otherwise               = V.length $ V.head pattern
-
-isEmpty :: Grid -> Bool
-isEmpty pattern = V.null pattern || V.null (V.head pattern)
-
-getCell :: Grid -> Int -> Int -> CellState
-getCell pattern x y = pattern ! (y `mod` gridSizeY pattern)
-                              ! (x `mod` gridSizeX pattern)
-
-{-
-  The simpler showPattern method: use this if the other one fails.
--}
+type Pattern        = Grid CellState
 
 instance Show CellState where
   show Dead         = "."
   show Alive        = "#"
 
-showPattern :: Grid -> String
-showPattern pattern = foldr concatLine ""
-                      (fmap (concat . V.toList) $ doubleMap show pattern) where
-
--- also used by fancyShowPattern
-concatLine :: String -> String -> String
-concatLine s z      = s ++ '\n':z
+getCell :: Pattern -> Int -> Int -> CellState
+getCell pattern x y = pattern !!! (modX, modY) where
+  modX = x `mod` gridSizeX pattern
+  modY = y `mod` gridSizeY pattern
 
 -- also used elsewhere
 doubleMap :: Functor c => (a -> b) -> c (c a) -> c (c b)
@@ -125,18 +93,15 @@ doubleMap           = fmap . fmap
   for alive ones.
 -}
 
-readPattern :: String -> Grid
-readPattern s       = patternFromList $ doubleMap readCell (lines s)
+readPattern :: String -> Pattern
+readPattern s       = gridFromList $ doubleMap readCell (lines s)
 
 readCell :: Char -> CellState
 readCell '.'        = Dead
 readCell _          = Alive
 
-patternFromList :: [[CellState]] -> Grid
-patternFromList xss = V.fromList $ map V.fromList xss
-
 {-
-Updating a grid follows the neighborhood concept and update rool chosen by
+Updating a grid follows the neighborhood concept and update rule chosen by
 Comway. These can be freely altered without affecting the rest of the program.
 - One option is switching from Moore neighborhood to Neumann neighborhood,
   which doesn't contain diagonal neighbors:
@@ -150,16 +115,16 @@ neighborhood = [(-1, -1), (0, -1),  (1, -1),
                 (-1,  0),           (1,  0),
                 (-1,  1), (0,  1),  (1,  1)]
 
-aliveNeighbors :: Grid -> Int -> Int -> Int
+aliveNeighbors :: Pattern -> Int -> Int -> Int
 aliveNeighbors pattern x y  = length $
                               filter (== Alive)
                               [getCell pattern (x+i) (y+j) |
                               (i,j) <- neighborhood]
 
-updatePattern :: Grid -> Grid
+updatePattern :: Pattern -> Pattern
 updatePattern pattern
   | isEmpty pattern = pattern
-  | otherwise       = patternFromList $
+  | otherwise       = gridFromList $
                       [
                         [updateCell pattern x y | x <- [0..maxX]]
                         | y <- [0..maxY]
@@ -168,7 +133,7 @@ updatePattern pattern
     maxX = gridSizeX pattern - 1
     maxY = gridSizeY pattern - 1
 
-updateCell :: Grid -> Int -> Int -> CellState
+updateCell :: Pattern -> Int -> Int -> CellState
 updateCell pattern x y
   | readyToBeBorn   = Alive
   | isWell          = Alive
@@ -179,62 +144,20 @@ updateCell pattern x y
      self           = getCell pattern x y
      othersAlive    = aliveNeighbors pattern x y
 
-updateToList :: Grid -> Int -> [Grid]
+updateToList :: Pattern -> Int -> [Pattern]
 updateToList pattern 0            = []
 updateToList pattern generations  = pattern :
                                     updateToList (updatePattern pattern)
                                     (generations - 1)
 
 {-
-  A fancier way of displaying the grids. There's a chance some of the
-  characters will not display correctly in every environment.
--}
-
-fancyChars :: String
-fancyChars =   " ▗▖▄▝▐▞▟▘▚▌▙▀▜▙█"
-fancyQuarter :: (CellState, CellState, CellState, CellState) -> Char
-fancyQuarter (ul, ur, bl, br) = fancyChars !!
-                                (8*(i ul) + 4*(i ur) + 2*(i bl) + i br)
-                                where
-                                  i = fromEnum
-
-getQuarter :: Grid -> Int -> Int ->
-              (CellState, CellState, CellState, CellState)
-getQuarter pattern x y    = (getCell pattern (2*x) (2*y),
-                            getCell pattern (2*x+1) (2*y),
-                            getCell pattern (2*x) (2*y+1),
-                            getCell pattern (2*x+1) (2*y+1))
-
-fancyShowAsList :: Grid -> [String]
-fancyShowAsList pattern
-  | isEmpty pattern = [""]
-  | otherwise             = [
-                              [fancyQuarter (getQuarter pattern x y)
-                                | x <- [0..maxX]]
-                              | y <- [0..maxY]
-                            ]
-                            where
-                              maxX = (gridSizeX pattern - 1) `div` 2
-                              maxY = (gridSizeY pattern - 1) `div` 2
-
-fancyShowAddBorder :: [String] -> [String]
-fancyShowAddBorder xss = [topLine] ++ map lineEndings xss ++ [bottomLine] where
-  topLine = "┏" ++ replicate (length $ head xss) '━' ++ "┓"
-  lineEndings xs = "┃" ++ xs ++ "┃"
-  bottomLine = "┗" ++ replicate (length $ head xss) '━' ++ "┛"
-
-
-fancyShowPattern :: Grid -> String
-fancyShowPattern pattern = foldl concatLine ""
-                           (fancyShowAddBorder $ fancyShowAsList pattern)
-
-{-
   This is a test that checks whether the core functions work correctly.
   It comes handy when these are modified.
 -}
+
 test :: IO ()
 test = do
-        patternString <- readFile "pulsar.grid"
+        patternString <- readFile "gol_patterns/pulsar.grid"
         let pattern = readPattern patternString
         let pattern' = (updatePattern . updatePattern . updatePattern) pattern
         if  gridSizeX pattern1 == 5 &&
@@ -253,19 +176,17 @@ test = do
             pattern == pattern'
           then putStrLn "- updatePattern        OK"
           else putStrLn "- updatePattern        not OK"
-        if  showPattern pattern1 == patternString1 ++ "\n"
-          then putStrLn "- showPattern          OK"
-          else putStrLn "- showPattern          not OK"
-        if  fancyShowPattern pattern1 == fSpattern1
-          then putStrLn "- fancyShowPattern     OK"
-          else putStrLn "- fancyShowPattern     not OK"
+        if  showGridSimple pattern1 "" == patternString1
+          then putStrLn "- showGridSimple       OK"
+          else putStrLn "- showGridSimple       not OK"
+        if  showGridFancy pattern1 (== Alive) == fSpattern1
+          then putStrLn "- showGridFancy        OK"
+          else putStrLn "- showGridFancy        not OK"
 
 patternString1  = ".....\n..#..\n.###.\n.###.\n..#..\n....."
 pattern1        = readPattern patternString1
-fSpattern1      = "\n\9487\9473\9473\9473\9491\n\9475 \9622 \9475\
+fSpattern1      = "\9487\9473\9473\9473\9491\n\9475 \9622 \9475\
                   \\n\9475\9616\9608 \9475\n\9475 \9624 \9475\
                   \\n\9495\9473\9473\9473\9499"
 patternString2  = ".....\n.###.\n.....\n.....\n.###.\n....."
 pattern2        = readPattern patternString2
-
-{- writing to Gif -}
